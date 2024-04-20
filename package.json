@@ -9,6 +9,9 @@
   "author": "ModEraNoah",
   "license": "MIT",
   "dependencies": {
+    "@types/pg": "^8.11.5",
+    "dotenv": "^16.4.5",
+    "pg": "^8.11.5",
     "typescript": "^5.4.5"
   }
 }
