@@ -15,12 +15,24 @@ const simpleReq = async () => {
 	console.log(res.rows[0])
 	let src: string = res.rows[0].prosrc
 
-	const insertIndex = src.indexOf("INSERT INTO") + ("INSERT INTO ".length)
-	console.log("src ab insertIndex:", src.substring(insertIndex))
-	console.log("table name von insert:", src.substring(insertIndex).split(" ").filter((item) => item != ""))
-	console.log("table name:", src.substring(insertIndex).split(" ").filter((item) => item != "")[0]);
-	const tableName: string = src.substring(insertIndex).split(" ").filter((item) => item != "")[0];
-	src = src.replace(` ${tableName} `, ` test_${tableName} `)
+	let nextSearchStartIndex = 0
+	while (true) {
+		let insertIndex = src.indexOf("INSERT INTO", nextSearchStartIndex)
+		if (insertIndex < 0) break
+		console.log("insertIndex:", insertIndex)
+		insertIndex += ("INSERT INTO ".length)
+
+		nextSearchStartIndex = src.indexOf(";", insertIndex) + 1
+		console.log("nextSEarchsTartIndex:", nextSearchStartIndex)
+
+		console.log("src ab insertIndex:", src.substring(insertIndex))
+		console.log("table name von insert:", src.substring(insertIndex).split(" ").filter((item) => item != ""))
+		console.log("table name:", src.substring(insertIndex).split(" ").filter((item) => item != "")[0]);
+
+		const tableName: string = src.substring(insertIndex).split(" ").filter((item) => item != "")[0];
+
+		src = src.replace(` ${tableName} `, ` test_${tableName} `)
+	}
 	console.log("--------------------")
 	//-----------
 
