@@ -31,7 +31,9 @@ const simpleReq = async () => {
 
 		const tableName: string = src.substring(insertIndex).split(" ").filter((item) => item != "")[0];
 
-		src = src.replace(` ${tableName} `, ` test_${tableName} `)
+		//TODO: Check if tableName really is a talbe or just a variable of the function which gets filled
+
+		src = src.replace(` ${tableName} `, ` test_${tableName} `);;
 	}
 	console.log("--------------------")
 	//-----------
