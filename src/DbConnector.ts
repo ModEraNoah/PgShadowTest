@@ -13,7 +13,16 @@ const simpleReq = async () => {
 	let values: any[] = []
 	let res = await client.query(query, values)
 	console.log(res.rows[0])
-	const src = res.rows[0].prosrc
+	let src: string = res.rows[0].prosrc
+
+	const insertIndex = src.indexOf("INSERT INTO") + ("INSERT INTO ".length)
+	console.log("src ab insertIndex:", src.substring(insertIndex))
+	console.log("table name von insert:", src.substring(insertIndex).split(" ").filter((item) => item != ""))
+	console.log("table name:", src.substring(insertIndex).split(" ").filter((item) => item != "")[0]);
+	const tableName: string = src.substring(insertIndex).split(" ").filter((item) => item != "")[0];
+	src = src.replace(` ${tableName} `, ` test_${tableName} `)
+	console.log("--------------------")
+	//-----------
 
 	let returnType: number | string = res.rows[0].prorettype
 	let inputTypes: number[] | string[] = res.rows[0].proargtypes.match(/\d+/g).map((inString: string) => { return parseInt(inString) })
