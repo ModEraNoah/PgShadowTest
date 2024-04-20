@@ -1,0 +1,14 @@
+{
+  "name": "pgtest",
+  "version": "1.0.0",
+  "description": "Unittesting for PostgreSQL",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "ModEraNoah",
+  "license": "MIT",
+  "dependencies": {
+    "typescript": "^5.4.5"
+  }
+}
