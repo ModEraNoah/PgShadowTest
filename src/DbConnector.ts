@@ -10,30 +10,54 @@ client.connect()
 
 const simpleReq = async () => {
 	let query = "SELECT * FROM pg_proc WHERE proname = 'add';"
-	let values: any[] = []
+	let values: any[] = [];
 	let res = await client.query(query, values)
-	console.log(res.rows[0])
+	// console.log(res.rows[0])
 	let src: string = res.rows[0].prosrc
 
 	let nextSearchStartIndex = 0
 	while (true) {
 		let insertIndex = src.indexOf("INSERT INTO", nextSearchStartIndex)
 		if (insertIndex < 0) break
-		console.log("insertIndex:", insertIndex)
 		insertIndex += ("INSERT INTO ".length)
 
-		nextSearchStartIndex = src.indexOf(";", insertIndex) + 1
-		console.log("nextSEarchsTartIndex:", nextSearchStartIndex)
+		nextSearchStartIndex = src.indexOf(";", insertIndex) + 1;
 
-		console.log("src ab insertIndex:", src.substring(insertIndex))
-		console.log("table name von insert:", src.substring(insertIndex).split(" ").filter((item) => item != ""))
-		console.log("table name:", src.substring(insertIndex).split(" ").filter((item) => item != "")[0]);
 
-		const tableName: string = src.substring(insertIndex).split(" ").filter((item) => item != "")[0];
+		const foundName: string = src.substring(insertIndex).split(" ").filter((item) => item != "")[0]
+		const tableAndSchemaName: string = foundName.split("(")[0];
+		// console.log("table and schema name:", tableAndSchemaName)
+
+		const separatedTableAndSchema: string[] = tableAndSchemaName.split(".")
+		const tableName: string = separatedTableAndSchema[separatedTableAndSchema.length - 1]
+
+		let schemaName = "public"
+		if (separatedTableAndSchema.length === 2) {
+			schemaName = separatedTableAndSchema[0]
+		}
+		console.log("tableName without schema:", tableName)
+		console.log("schema name:", schemaName)
 
 		//TODO: Check if tableName really is a talbe or just a variable of the function which gets filled
+		console.log("================")
+		let query = "SELECT * from information_schema.columns WHERE table_schema = ($1) AND table_name = ($2);"
+		let values: any[] = [schemaName, tableName];
+		let res = await client.query(query, values)
+		console.log(res.rows.length)
+		if (res.rows.length) {
+			if (!foundName.includes("(")) {
+				src = src.replace(` ${foundName} `, ` ${schemaName}.test_${tableName} `);
+			} else {
+				src = src.replace(` ${foundName} `, ` ${schemaName}.test_${tableName}(${foundName.split("(")[1]} `);
+			}
+			console.log("table truely is one");
+			let query = `CREATE TABLE ${schemaName}.test_${tableName} as (select * from ${schemaName}.${tableName}) with no data;`
+			let values: any[] = [];
+			let res = await client.query(query, values);
+			console.log("res of table cloning", res);
+		}
+		console.log("================");
 
-		src = src.replace(` ${tableName} `, ` test_${tableName} `);;
 	}
 	console.log("--------------------")
 	//-----------
