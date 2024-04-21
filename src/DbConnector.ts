@@ -8,13 +8,14 @@ const client = new Client()
 
 client.connect()
 
-//TODO: test-data preparation
-const simpleReq = async () => {
+const prepData: { schema: string, table: string, values: any[][] }[] = [{ schema: "public", table: "mytable", values: [[1, "someTestValue"], [1411, "someOtherValue"]] }, { schema: "schemaaa", table: "other_table", values: [[69, "noice"]] }];
+
+const simpleReq = async (preparation?: { schema: string, table: string, values: any[][] }[]) => {
 	let query = "SELECT * FROM pg_proc WHERE proname = 'add';"
 	let values: any[] = [];
 	let res = await client.query(query, values)
 	// console.log(res.rows[0])
-	let src: string = res.rows[0].prosrc
+	let src: string = res.rows[0].prosrc;
 
 	let nextSearchStartIndex = 0
 	while (true) {
@@ -61,6 +62,29 @@ const simpleReq = async () => {
 	}
 	console.log("--------------------")
 	//-----------
+	//preparation
+	if (preparation) {
+		for (let i = 0; i < preparation.length; i++) {
+			let query = `INSERT INTO ${preparation[i].schema}.test_${preparation[i].table} VALUES (`
+			for (let j = 0; j < preparation[i].values[0].length; j++) {
+				if (j === 0) {
+					query += `($${j + 1}) `;
+				} else {
+					query += `, ($${j + 1}) `
+				}
+			}
+			query += ");";
+
+			for (const valuePair of preparation[i].values) {
+				const values = valuePair
+				console.log("values for preparation:", values)
+				console.log("query:", query);
+				const res = await client.query(query, values);
+			}
+		}
+	}
+
+	//-----------
 
 	let returnType: number | string = res.rows[0].prorettype
 	let inputTypes: number[] | string[] = res.rows[0].proargtypes.match(/\d+/g).map((inString: string) => { return parseInt(inString) })
@@ -100,7 +124,7 @@ const simpleReq = async () => {
 
 		} else {
 			argsString += `,${inputArgs[i]} ${inputTypes[i]}`
-		}
+		};
 	}
 
 	const functionName = "add";
@@ -113,4 +137,4 @@ const simpleReq = async () => {
 	fs.writeFileSync(__dirname + "/blubby.txte", result)
 }
 
-simpleReq()
+simpleReq(prepData)
