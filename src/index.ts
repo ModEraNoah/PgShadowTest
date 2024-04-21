@@ -1,1 +1,2 @@
-console.log('test')
+export * from "./DbConnector"
+export * from "./TestFunctionalities"
