@@ -137,4 +137,37 @@ const simpleReq = async (preparation?: { schema: string, table: string, values: 
 	fs.writeFileSync(__dirname + "/blubby.txte", result)
 }
 
-simpleReq(prepData)
+// simpleReq(prepData)
+
+function test(tableWithSchema: string) {
+	return {
+		toHave: async (row: Record<string, any>) => {
+			console.log("toHave:", "key:", Object.entries(row))
+			let query = `SELECT * FROM ${tableWithSchema} WHERE `
+			for (let i = 0; i < Object.entries(row).length; i++) {
+				if (i === 0) {
+					query += `${Object.entries(row)[i][0]} = ($${i + 1}) `
+				} else {
+					query += `AND ${Object.entries(row)[i][0]} = ($${i + 1})`
+				}
+			}
+			console.log(query)
+			const values = Object.values(row)
+
+			let res
+			try {
+				res = await client.query(query, values);
+			} catch (e) {
+				console.log(e)
+				return false
+			}
+			if (res.rows.length === 1) return true;
+			return false
+
+		},
+		toBeSizeOf: () => { console.log("toBeSizeOf:") }
+	}
+}
+
+test("schemaaa.test_other_table").toHave({ id: 3, some_text: "noice" }).then((r) => { console.log(r) })
+test("schemaaa.test_other_table").toHave({ id: 69, some_text: "noice" }).then((r) => { console.log(r) })
