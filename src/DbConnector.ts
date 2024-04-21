@@ -8,6 +8,7 @@ const client = new Client()
 
 client.connect()
 
+//TODO: test-data preparation
 const simpleReq = async () => {
 	let query = "SELECT * FROM pg_proc WHERE proname = 'add';"
 	let values: any[] = [];
@@ -38,7 +39,6 @@ const simpleReq = async () => {
 		console.log("tableName without schema:", tableName)
 		console.log("schema name:", schemaName)
 
-		//TODO: Check if tableName really is a talbe or just a variable of the function which gets filled
 		console.log("================")
 		let query = "SELECT * from information_schema.columns WHERE table_schema = ($1) AND table_name = ($2);"
 		let values: any[] = [schemaName, tableName];
