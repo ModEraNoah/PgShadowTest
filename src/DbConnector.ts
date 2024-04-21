@@ -1,6 +1,6 @@
 import * as dotenv from "dotenv"
 import * as fs from "fs"
-dotenv.config({ path: "./database.env" })
+dotenv.config({ path: "../database.env" })
 
 import { Client } from "pg";
 
